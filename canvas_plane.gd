@@ -95,7 +95,7 @@ func set_canvas_scale(p_scale):
 	set_process(true)
 	
 func set_interactable(p_interactable):
-	interactable = p_interactble
+	interactable = p_interactable
 	set_process(true)
 	
 func _set_mesh_material(p_material):
