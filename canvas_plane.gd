@@ -173,6 +173,8 @@ func _ready():
 	# Collision
 	pointer_reciever = function_pointer_reciever_const.new()
 	pointer_reciever.set_name("PointerReciever")
+	pointer_reciever.connect("pointer_pressed", self, "on_pointer_pressed")
+	pointer_reciever.connect("pointer_release", self, "on_pointer_release")
 	pointer_reciever.connect("pointer_moved", self, "on_pointer_moved")
 	spatial_root.add_child(pointer_reciever)
 	
