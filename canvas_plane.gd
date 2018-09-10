@@ -152,8 +152,9 @@ func on_pointer_moved(p_position):
 		previous_mouse_position = position_2d
 
 func _process(p_delta):
-	_update()
-	set_process(false)
+	if p_delta > 0.0:
+		_update()
+		set_process(false)
 
 func _ready():
 	spatial_root = Spatial.new()
@@ -221,6 +222,5 @@ func _ready():
 	if not Engine.is_editor_hint():
 		for child in get_children():
 			if child.owner != null:
-				var name = child.get_name()
 				child.get_parent().remove_child(child)
 				control_root.add_child(child)
