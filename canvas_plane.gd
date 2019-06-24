@@ -117,7 +117,7 @@ func on_pointer_pressed(p_position):
 	event.set_global_position(position_2d)
 	event.set_button_mask(mouse_mask)
 	
-	get_tree().set_input_as_handled(false)
+	get_tree().set_input_as_handled()
 	viewport.input(event)
 	previous_mouse_position = position_2d
 	
@@ -133,7 +133,7 @@ func on_pointer_release(p_position):
 	event.set_global_position(position_2d)
 	event.set_button_mask(mouse_mask)
 	
-	get_tree().set_input_as_handled(false)
+	get_tree().set_input_as_handled()
 	viewport.input(event)
 	previous_mouse_position = position_2d
 
@@ -147,7 +147,7 @@ func on_pointer_moved(p_position):
 		event.set_relative(position_2d - previous_mouse_position) # should this be scaled/warped?
 		event.set_button_mask(mouse_mask)
 		
-		get_tree().set_input_as_handled(false)
+		get_tree().set_input_as_handled()
 		viewport.input(event)
 		previous_mouse_position = position_2d
 
