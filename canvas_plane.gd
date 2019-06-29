@@ -1,4 +1,5 @@
 extends Spatial
+class_name CanvasPlane, "icon_canvas_plane.svg"
 tool
 
 const function_pointer_reciever_const = preload("function_pointer_reciever.gd")
@@ -13,6 +14,7 @@ export(float) var canvas_height = 1080 setget set_canvas_height
 export(float) var canvas_scale = 0.01 setget set_canvas_scale
 
 export(bool) var interactable = false setget set_interactable
+export(bool) var translucent = false setget set_translucent
 
 # Render
 var spatial_root = null
@@ -97,6 +99,11 @@ func set_canvas_scale(p_scale):
 func set_interactable(p_interactable):
 	interactable = p_interactable
 	set_process(true)
+	
+func set_translucent(p_translucent):
+	translucent = p_translucent
+	if material:
+		material.flags_transparent = translucent
 	
 func _set_mesh_material(p_material):
 	if mesh:
@@ -204,7 +211,7 @@ func _ready():
 	# Generate the unique material
 	material = SpatialMaterial.new()
 	material.flags_unshaded = true
-	material.flags_transparent = true
+	material.flags_transparent = translucent
 	material.flags_albedo_tex_force_srgb = true
 	
 	# Texture
