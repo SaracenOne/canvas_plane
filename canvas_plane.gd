@@ -4,50 +4,53 @@ tool
 
 const function_pointer_reciever_const = preload("function_pointer_reciever.gd")
 
-export(float, 0.0, 1.0) var canvas_anchor_x = 0.0 setget set_canvas_anchor_x
-export(float, 0.0, 1.0) var canvas_anchor_y = 0.0 setget set_canvas_anchor_y
+export(float, 0.0, 1.0) var canvas_anchor_x : float = 0.0 setget set_canvas_anchor_x
+export(float, 0.0, 1.0) var canvas_anchor_y : float = 0.0 setget set_canvas_anchor_y
 
 # Defaults to 16:9
-export(float) var canvas_width = 1920 setget set_canvas_width
-export(float) var canvas_height = 1080 setget set_canvas_height
+export(float) var canvas_width : float = 1920 setget set_canvas_width
+export(float) var canvas_height : float = 1080 setget set_canvas_height
 
-export(float) var canvas_scale = 0.01 setget set_canvas_scale
+export(float) var canvas_scale : float = 0.01 setget set_canvas_scale
 
-export(bool) var interactable = false setget set_interactable
-export(bool) var translucent = false setget set_translucent
+export(bool) var interactable : bool = false setget set_interactable
+export(bool) var translucent : bool = false setget set_translucent
+
+export(int, LAYERS_2D_PHYSICS) var collision_mask : int = 1
+export(int, LAYERS_3D_PHYSICS) var collision_layer : int = 1
 
 # Render
-var spatial_root = null
-var mesh = null
-var mesh_instance = null
-var material = null
-var viewport = null
-var control_root = null
+var spatial_root : Spatial = null
+var mesh : Mesh = null
+var mesh_instance : MeshInstance = null
+var material : Material = null
+var viewport : Viewport = null
+var control_root : Control = null
 
 # Collision
-var pointer_reciever = null
-var collision_shape = null
+var pointer_reciever : function_pointer_reciever_const = null
+var collision_shape : CollisionShape = null
 
 # Interaction
-var previous_mouse_position = Vector2()
-var mouse_mask = 0
+var previous_mouse_position : Vector2 = Vector2()
+var mouse_mask : int = 0
 
-func get_spatial_origin_to_canvas_position(p_origin):
-	var transform_scale = Vector2(global_transform.basis.get_scale().x, global_transform.basis.get_scale().y)
+func get_spatial_origin_to_canvas_position(p_origin : Vector3) -> Vector2:
+	var transform_scale : Vector2 = Vector2(global_transform.basis.get_scale().x, global_transform.basis.get_scale().y)
 	
-	var inverse_transform = (Vector2(1.0, 1.0) / transform_scale)
-	var point = Vector2(p_origin.x, p_origin.y) * inverse_transform * inverse_transform
+	var inverse_transform : Vector2 = (Vector2(1.0, 1.0) / transform_scale)
+	var point : Vector2 = Vector2(p_origin.x, p_origin.y) * inverse_transform * inverse_transform
 	
-	var ratio = Vector2(0.5, 0.5) + (point / canvas_scale) / ((Vector2(canvas_width, canvas_height) * canvas_scale) * 0.5)
+	var ratio : Vector2 = Vector2(0.5, 0.5) + (point / canvas_scale) / ((Vector2(canvas_width, canvas_height) * canvas_scale) * 0.5)
 	ratio.y = 1.0 - ratio.y # Flip the Y-axis
 	
-	var canvas_position = ratio * Vector2(canvas_width, canvas_height)
+	var canvas_position : Vector2 = ratio * Vector2(canvas_width, canvas_height)
 	
 	return canvas_position
 
-func _update():
-	var canvas_width_offset = (canvas_width * 0.5 * 0.5) - (canvas_width * 0.5 * canvas_anchor_x)
-	var canvas_height_offset = -(canvas_height * 0.5 * 0.5) + (canvas_height * 0.5 * canvas_anchor_y)
+func _update() -> void:
+	var canvas_width_offset : float = (canvas_width * 0.5 * 0.5) - (canvas_width * 0.5 * canvas_anchor_x)
+	var canvas_height_offset : float = -(canvas_height * 0.5 * 0.5) + (canvas_height * 0.5 * canvas_anchor_y)
 	
 	if mesh:
 		mesh.set_size((Vector2(canvas_width, canvas_height) * 0.5))
@@ -73,97 +76,99 @@ func _update():
 	if spatial_root:
 		spatial_root.set_scale(Vector3(canvas_scale, canvas_scale, canvas_scale))
 
-func get_control_root():
+func get_control_root() -> Control:
 	return control_root
 
-func set_canvas_anchor_x(p_anchor):
+func set_canvas_anchor_x(p_anchor : float) -> void:
 	canvas_anchor_x = p_anchor
 	set_process(true)
 	
-func set_canvas_anchor_y(p_anchor):
+func set_canvas_anchor_y(p_anchor : float) -> void:
 	canvas_anchor_y = p_anchor
 	set_process(true)
 
-func set_canvas_width(p_width):
+func set_canvas_width(p_width : float) -> void:
 	canvas_width = p_width
 	set_process(true)
 
-func set_canvas_height(p_height):
+func set_canvas_height(p_height : float) -> void:
 	canvas_height = p_height
 	set_process(true)
 	
-func set_canvas_scale(p_scale):
+func set_canvas_scale(p_scale : float) -> void:
 	canvas_scale = p_scale
 	set_process(true)
 	
-func set_interactable(p_interactable):
+func set_interactable(p_interactable : bool) -> void:
 	interactable = p_interactable
 	set_process(true)
 	
-func set_translucent(p_translucent):
+func set_translucent(p_translucent : bool) -> void:
 	translucent = p_translucent
 	if material:
 		material.flags_transparent = translucent
 	
-func _set_mesh_material(p_material):
+func _set_mesh_material(p_material : Material) -> void:
 	if mesh:
 		if mesh is PrimitiveMesh:
 			mesh.set_material(p_material)
 		else:
 			mesh.surface_set_material(0, p_material)
 			
-func on_pointer_pressed(p_position):
-	var position_2d = get_spatial_origin_to_canvas_position(p_position)
+func on_pointer_pressed(p_position : Vector3) -> void:
+	var position_2d : Vector2 = get_spatial_origin_to_canvas_position(p_position)
 	
 	# Let's mimic a mouse
 	mouse_mask = 1
-	var event = InputEventMouseButton.new()
+	var event : InputEventMouseButton = InputEventMouseButton.new()
 	event.set_button_index(1)
 	event.set_pressed(true)
 	event.set_position(position_2d)
 	event.set_global_position(position_2d)
 	event.set_button_mask(mouse_mask)
 	
-	get_tree().set_input_as_handled()
+	#get_tree().set_input_as_handled()
 	viewport.input(event)
 	previous_mouse_position = position_2d
 	
-func on_pointer_release(p_position):
-	var position_2d = get_spatial_origin_to_canvas_position(p_position)
+func on_pointer_release(p_position : Vector3) -> void:
+	var position_2d : Vector2 = get_spatial_origin_to_canvas_position(p_position)
 
 	# Let's mimic a mouse
 	mouse_mask = 0
-	var event = InputEventMouseButton.new()
+	var event : InputEventMouseButton = InputEventMouseButton.new()
 	event.set_button_index(1)
 	event.set_pressed(false)
 	event.set_position(position_2d)
 	event.set_global_position(position_2d)
 	event.set_button_mask(mouse_mask)
 	
-	get_tree().set_input_as_handled()
+	#get_tree().set_input_as_handled()
 	viewport.input(event)
 	previous_mouse_position = position_2d
 
-func on_pointer_moved(p_position):
-	var position_2d = get_spatial_origin_to_canvas_position(p_position)
+func on_pointer_moved(p_position : Vector3) -> void:
+	# Disabled temporarily because virtual mouse movement events buggy
+	"""
+	var position_2d : Vector2 = get_spatial_origin_to_canvas_position(p_position)
 	
 	if position_2d != previous_mouse_position:
-		var event = InputEventMouseMotion.new()
+		var event : InputEventMouseMotion = InputEventMouseMotion.new()
 		event.set_position(position_2d)
 		event.set_global_position(position_2d)
 		event.set_relative(position_2d - previous_mouse_position) # should this be scaled/warped?
 		event.set_button_mask(mouse_mask)
 		
-		get_tree().set_input_as_handled()
+		#get_tree().set_input_as_handled()
 		viewport.input(event)
-		previous_mouse_position = position_2d
+		previous_mouse_position = position_2d"""
 
-func _process(p_delta):
+func _process(p_delta : float) -> void:
 	if p_delta > 0.0:
 		_update()
 		set_process(false)
 
-func _ready():
+func _ready() -> void:
 	spatial_root = Spatial.new()
 	spatial_root.set_name("SpatialRoot")
 	add_child(spatial_root)
@@ -173,7 +178,7 @@ func _ready():
 	mesh_instance = MeshInstance.new()
 	mesh_instance.set_mesh(mesh)
 	mesh_instance.rotate_x(deg2rad(-90))
-	mesh_instance.set_scale(Vector3(-1.0, -1.0, -1.0))
+	mesh_instance.set_scale(Vector3(1.0, -1.0, 1.0))
 	mesh_instance.set_name("MeshInstance")
 	mesh_instance.set_skeleton_path(NodePath())
 	spatial_root.add_child(mesh_instance)
@@ -181,9 +186,16 @@ func _ready():
 	# Collision
 	pointer_reciever = function_pointer_reciever_const.new()
 	pointer_reciever.set_name("PointerReciever")
-	pointer_reciever.connect("pointer_pressed", self, "on_pointer_pressed")
-	pointer_reciever.connect("pointer_release", self, "on_pointer_release")
-	pointer_reciever.connect("pointer_moved", self, "on_pointer_moved")
+	
+	if pointer_reciever.connect("pointer_pressed", self, "on_pointer_pressed") != OK:
+		printerr("pointer_pressed could not be connected!")
+	if pointer_reciever.connect("pointer_release", self, "on_pointer_release") != OK:
+		printerr("pointer_release could not be connected!")
+	if pointer_reciever.connect("pointer_moved", self, "on_pointer_moved") != OK:
+		printerr("pointer_moved could not be connected!")
+	
+	pointer_reciever.collision_mask = collision_mask
+	pointer_reciever.collision_layer = collision_layer
 	spatial_root.add_child(pointer_reciever)
 	
 	collision_shape = CollisionShape.new()
@@ -215,8 +227,8 @@ func _ready():
 	material.flags_albedo_tex_force_srgb = true
 	
 	# Texture
-	var flags = 0
-	var texture = viewport.get_texture()
+	var flags : int = 0
+	var texture : Texture = viewport.get_texture()
 	flags |= Texture.FLAG_FILTER
 	flags |= Texture.FLAG_MIPMAPS
 	texture.set_flags(flags)
