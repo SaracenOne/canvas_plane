@@ -78,6 +78,9 @@ func _update() -> void:
 
 func get_control_root() -> Control:
 	return control_root
+	
+func get_control_viewport() -> Viewport:
+	return viewport
 
 func set_canvas_anchor_x(p_anchor : float) -> void:
 	canvas_anchor_x = p_anchor
@@ -147,9 +150,9 @@ func on_pointer_release(p_position : Vector3) -> void:
 	viewport.input(event)
 	previous_mouse_position = position_2d
 
+"""
 func on_pointer_moved(p_position : Vector3) -> void:
 	# Disabled temporarily because virtual mouse movement events buggy
-	"""
 	var position_2d : Vector2 = get_spatial_origin_to_canvas_position(p_position)
 	
 	if position_2d != previous_mouse_position:
@@ -191,8 +194,8 @@ func _ready() -> void:
 		printerr("pointer_pressed could not be connected!")
 	if pointer_reciever.connect("pointer_release", self, "on_pointer_release") != OK:
 		printerr("pointer_release could not be connected!")
-	if pointer_reciever.connect("pointer_moved", self, "on_pointer_moved") != OK:
-		printerr("pointer_moved could not be connected!")
+	#if pointer_reciever.connect("pointer_moved", self, "on_pointer_moved") != OK:
+	#	printerr("pointer_moved could not be connected!")
 	
 	pointer_reciever.collision_mask = collision_mask
 	pointer_reciever.collision_layer = collision_layer
