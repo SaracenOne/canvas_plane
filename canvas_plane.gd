@@ -2,7 +2,7 @@ extends Spatial
 class_name CanvasPlane, "icon_canvas_plane.svg"
 tool
 
-const function_pointer_reciever_const = preload("function_pointer_reciever.gd")
+const function_pointer_receiver_const = preload("function_pointer_receiver.gd")
 
 export(float, 0.0, 1.0) var canvas_anchor_x : float = 0.0 setget set_canvas_anchor_x
 export(float, 0.0, 1.0) var canvas_anchor_y : float = 0.0 setget set_canvas_anchor_y
@@ -16,8 +16,8 @@ export(float) var canvas_scale : float = 0.01 setget set_canvas_scale
 export(bool) var interactable : bool = false setget set_interactable
 export(bool) var translucent : bool = false setget set_translucent
 
-export(int, LAYERS_2D_PHYSICS) var collision_mask : int = 1
-export(int, LAYERS_3D_PHYSICS) var collision_layer : int = 1
+export(int, LAYERS_2D_PHYSICS) var collision_mask : int = 0
+export(int, LAYERS_3D_PHYSICS) var collision_layer : int = 0
 
 # Render
 var spatial_root : Spatial = null
@@ -28,7 +28,7 @@ var viewport : Viewport = null
 var control_root : Control = null
 
 # Collision
-var pointer_reciever : function_pointer_reciever_const = null
+var pointer_receiver : function_pointer_receiver_const = null
 var collision_shape : CollisionShape = null
 
 # Interaction
@@ -46,6 +46,8 @@ func get_spatial_origin_to_canvas_position(p_origin : Vector3) -> Vector2:
 	
 	var canvas_position : Vector2 = ratio * Vector2(canvas_width, canvas_height)
 	
+	print(canvas_position)
+	
 	return canvas_position
 
 func _update() -> void:
@@ -58,8 +60,8 @@ func _update() -> void:
 	if mesh_instance:
 		mesh_instance.set_translation(Vector3(canvas_width_offset, canvas_height_offset, 0))
 		
-	if pointer_reciever:
-		pointer_reciever.set_translation(Vector3(canvas_width_offset, canvas_height_offset, 0))
+	if pointer_receiver:
+		pointer_receiver.set_translation(Vector3(canvas_width_offset, canvas_height_offset, 0))
 		if collision_shape:
 			if collision_shape.is_inside_tree():
 				collision_shape.get_parent().remove_child(collision_shape)
@@ -69,7 +71,7 @@ func _update() -> void:
 				box_shape.set_extents(Vector3(canvas_width * 0.5 * 0.5, canvas_height * 0.5 * 0.5, 0.0))
 				collision_shape.set_shape(box_shape)
 				
-				pointer_reciever.add_child(collision_shape)
+				pointer_receiver.add_child(collision_shape)
 			else:
 				collision_shape.set_shape(null)
 		
@@ -187,23 +189,23 @@ func _ready() -> void:
 	spatial_root.add_child(mesh_instance)
 	
 	# Collision
-	pointer_reciever = function_pointer_reciever_const.new()
-	pointer_reciever.set_name("PointerReciever")
+	pointer_receiver = function_pointer_receiver_const.new()
+	pointer_receiver.set_name("PointerReceiver")
 	
-	if pointer_reciever.connect("pointer_pressed", self, "on_pointer_pressed") != OK:
+	if pointer_receiver.connect("pointer_pressed", self, "on_pointer_pressed") != OK:
 		printerr("pointer_pressed could not be connected!")
-	if pointer_reciever.connect("pointer_release", self, "on_pointer_release") != OK:
+	if pointer_receiver.connect("pointer_release", self, "on_pointer_release") != OK:
 		printerr("pointer_release could not be connected!")
-	#if pointer_reciever.connect("pointer_moved", self, "on_pointer_moved") != OK:
+	#if pointer_receiver.connect("pointer_moved", self, "on_pointer_moved") != OK:
 	#	printerr("pointer_moved could not be connected!")
 	
-	pointer_reciever.collision_mask = collision_mask
-	pointer_reciever.collision_layer = collision_layer
-	spatial_root.add_child(pointer_reciever)
+	pointer_receiver.collision_mask = collision_mask
+	pointer_receiver.collision_layer = collision_layer
+	spatial_root.add_child(pointer_receiver)
 	
 	collision_shape = CollisionShape.new()
 	collision_shape.set_name("CollisionShape")
-	pointer_reciever.add_child(collision_shape)
+	pointer_receiver.add_child(collision_shape)
 	
 	viewport = Viewport.new()
 	viewport.size = Vector2(canvas_width, canvas_height)
