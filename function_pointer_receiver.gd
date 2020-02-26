@@ -10,11 +10,11 @@ func untransform_position(p_vector : Vector3) -> Vector3:
 	return global_transform.xform_inv(p_vector)
 	
 func untransform_normal(p_normal : Vector3) -> Vector3:
-	var basis : Basis = Basis(global_transform.basis.get_rotation_quat())
+	var basis : Basis = global_transform.basis.orthonormalized()
 	return math_funcs_const.transform_directon_vector(p_normal, basis.inverse())
 	
 func validate_pointer(p_normal : Vector3) -> bool:
-	var basis : Basis = Basis(global_transform.basis.get_rotation_quat())
+	var basis : Basis = global_transform.basis.orthonormalized()
 	var transform_normal : Vector3 = untransform_normal(p_normal)
 	if transform_normal.z > 0.0:
 		return true
