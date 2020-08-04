@@ -3,5 +3,6 @@ tool
 
 var editor_interface = null
 
-func get_name(): 
+
+func get_name():
 	return "CanvasPlane"
