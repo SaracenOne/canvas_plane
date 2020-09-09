@@ -197,10 +197,9 @@ func on_pointer_moved(p_position : Vector3) -> void:
 		previous_mouse_position = position_2d"""
 
 
-func _process(p_delta: float) -> void:
-	if p_delta > 0.0:
-		_update()
-		set_process(false)
+func _process(_delta: float) -> void:
+	_update()
+	set_process(false)
 
 
 func _ready() -> void:
