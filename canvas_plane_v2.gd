@@ -56,7 +56,6 @@ func get_spatial_origin_to_canvas_position(p_origin: Vector3) -> Vector2:
 """
 
 func _update() -> void:
-	print("_update")
 	_update_control_root()
 	
 	var scaled_canvas_size: Vector2 = canvas_size * canvas_utils_const.UI_PIXELS_TO_METER
@@ -144,7 +143,6 @@ func _update_control_root() -> void:
 	else:
 		canvas_size = Vector2()
 	
-	print("canvas_size: " + str(canvas_size))
 	viewport.size = canvas_size
 
 
