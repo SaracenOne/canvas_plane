@@ -7,7 +7,7 @@ const function_pointer_receiver_const = preload("function_pointer_receiver.gd")
 
 var _is_dirty: bool = true
 
-export (Vector2) var canvas_anchor: Vector2 = Vector2(0.5, 0.5) setget set_canvas_anchor
+export (Vector2) var offset_ratio: Vector2 = Vector2(0.5, 0.5) setget set_offset_ratio
 
 export (bool) var interactable: bool = false setget set_interactable
 export (bool) var translucent: bool = false setget set_translucent
@@ -62,10 +62,10 @@ func _update() -> void:
 	
 	var canvas_offset: Vector2 = Vector2((
 		(scaled_canvas_size.x * 0.5)
-		- (scaled_canvas_size.x * canvas_anchor.x)
+		- (scaled_canvas_size.x * offset_ratio.x)
 	),(
 		-(scaled_canvas_size.y * 0.5)
-		+ (scaled_canvas_size.y * canvas_anchor.y)
+		+ (scaled_canvas_size.y * offset_ratio.y)
 	))
 
 	if mesh:
@@ -85,8 +85,8 @@ func get_control_viewport() -> Viewport:
 	return viewport
 
 
-func set_canvas_anchor(p_anchor: Vector2) -> void:
-	canvas_anchor = p_anchor
+func set_offset_ratio(p_offset_ratio: Vector2) -> void:
+	offset_ratio = p_offset_ratio
 	set_dirty_flag()
 
 
