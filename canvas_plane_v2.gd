@@ -59,16 +59,18 @@ func _update() -> void:
 	print("_update")
 	_update_control_root()
 	
+	var scaled_canvas_size: Vector2 = canvas_size * canvas_utils_const.UI_PIXELS_TO_METER
+	
 	var canvas_offset: Vector2 = Vector2((
-		(canvas_size.x * 0.5 * 0.5)
-		- (canvas_size.x * 0.5 * canvas_anchor.x)
+		(scaled_canvas_size.x * 0.5)
+		- (scaled_canvas_size.x * canvas_anchor.x)
 	),(
-		-(canvas_size.y * 0.5 * 0.5)
-		+ (canvas_size.y * 0.5 * canvas_anchor.y)
+		-(scaled_canvas_size.y * 0.5)
+		+ (scaled_canvas_size.y * canvas_anchor.y)
 	))
 
 	if mesh:
-		mesh.set_size(canvas_size * canvas_utils_const.UI_PIXELS_TO_METER)
+		mesh.set_size(scaled_canvas_size)
 
 	if mesh_instance:
 		mesh_instance.set_translation(Vector3(canvas_offset.x, canvas_offset.y, 0))

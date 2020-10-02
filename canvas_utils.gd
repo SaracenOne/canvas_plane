@@ -13,4 +13,4 @@ static func find_child_control(p_root: Node) -> Control:
 	return control_node
 
 static func get_physcially_scaled_size_from_control(p_control: Control) -> Vector2:
-	return Vector2(p_control.get_size().x * UI_PIXELS_TO_METER, p_control.get_size().y * UI_PIXELS_TO_METER)
+	return p_control.get_size() * UI_PIXELS_TO_METER
