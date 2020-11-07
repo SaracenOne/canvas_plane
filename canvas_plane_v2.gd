@@ -9,6 +9,9 @@ var _is_dirty: bool = true
 
 export (Vector2) var offset_ratio: Vector2 = Vector2(0.5, 0.5) setget set_offset_ratio
 
+enum BillboardMode {BILLBOARD_DISABLED, BILLBOARD_ENABLED, BILLBOARD_FIXED_Y, BILLBOARD_PARTICLES}
+export(BillboardMode) var billboard_mode: int = BillboardMode.BILLBOARD_DISABLED setget set_billboard_mode
+
 export (bool) var interactable: bool = false setget set_interactable
 export (bool) var translucent: bool = false setget set_translucent
 
@@ -43,6 +46,7 @@ func get_spatial_origin_to_canvas_position(p_origin: Vector3) -> Vector2:
 
 	var inverse_transform: Vector2 = Vector2(1.0, 1.0) / transform_scale
 	var point: Vector2 = Vector2(p_origin.x, p_origin.y) * inverse_transform * inverse_transform
+	var point: Vector2 = Vector2(p_origin.x, p_origin.y) * inverse_transform * inverse_transform
 
 	var ratio: Vector2 = (
 		Vector2(0.5, 0.5)
@@ -54,6 +58,14 @@ func get_spatial_origin_to_canvas_position(p_origin: Vector3) -> Vector2:
 
 	return canvas_position
 """
+
+func _update_aabb() -> void:
+	if mesh and mesh_instance:
+		if billboard_mode != BillboardMode.BILLBOARD_DISABLED:
+			var longest_axis_size: float = mesh.get_aabb().get_longest_axis_size()
+			mesh_instance.set_custom_aabb(AABB(mesh.get_aabb().position, Vector3(longest_axis_size, longest_axis_size, longest_axis_size)))
+		else:
+			mesh_instance.set_custom_aabb(AABB())
 
 func _update() -> void:
 	_update_control_root()
@@ -73,7 +85,9 @@ func _update() -> void:
 
 	if mesh_instance:
 		mesh_instance.set_translation(Vector3(canvas_offset.x, canvas_offset.y, 0))
-				
+		
+	_update_aabb()
+		
 	clear_dirty_flag()
 
 
@@ -99,6 +113,13 @@ func set_translucent(p_translucent: bool) -> void:
 	translucent = p_translucent
 	if material:
 		material.flags_transparent = translucent
+
+
+func set_billboard_mode(p_billboard_mode: int) -> void:
+	billboard_mode = p_billboard_mode
+	if material:
+		material.set_billboard_mode(p_billboard_mode)
+	set_dirty_flag()
 
 
 func _setup_canvas_item() -> void:
@@ -185,18 +206,17 @@ func _ready() -> void:
 	spatial_root.set_name("SpatialRoot")
 	add_child(spatial_root)
 
-	mesh = PlaneMesh.new()
+	mesh = QuadMesh.new()
 
 	mesh_instance = MeshInstance.new()
 	mesh_instance.set_mesh(mesh)
-	mesh_instance.rotate_x(deg2rad(-90))
 	mesh_instance.set_scale(Vector3(1.0, -1.0, 1.0))
 	mesh_instance.set_name("MeshInstance")
 	mesh_instance.set_skeleton_path(NodePath())
 	
 	spatial_root.add_child(mesh_instance)
 	mesh_instance.set_owner(spatial_root)
-	spatial_root.set_owner(self)
+	spatial_root.set_owner(null)
 
 	# Collision
 	pointer_receiver = function_pointer_receiver_const.new()
@@ -238,6 +258,7 @@ func _ready() -> void:
 	material.flags_unshaded = true
 	material.flags_transparent = translucent
 	material.flags_albedo_tex_force_srgb = true
+	material.set_billboard_mode(billboard_mode)
 	
 	_update()
 	_set_mesh_material(material)
