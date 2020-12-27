@@ -201,11 +201,36 @@ func _process(_delta: float) -> void:
 	_update()
 	set_process(false)
 
-
-func _ready() -> void:
+func _init():
 	spatial_root = Spatial.new()
 	spatial_root.set_name("SpatialRoot")
 	add_child(spatial_root)
+	
+	viewport = Viewport.new()
+	viewport.size = Vector2(canvas_width, canvas_height)
+	viewport.hdr = false
+	viewport.transparent_bg = true
+	viewport.disable_3d = true
+	viewport.keep_3d_linear = true
+	viewport.usage = Viewport.USAGE_2D_NO_SAMPLING
+	viewport.audio_listener_enable_2d = false
+	viewport.audio_listener_enable_3d = false
+	viewport.render_target_update_mode = Viewport.UPDATE_ALWAYS
+	viewport.set_name("Viewport")
+	spatial_root.add_child(viewport)
+
+	control_root = Control.new()
+	control_root.set_name("ControlRoot")
+	control_root.set_anchors_preset(Control.PRESET_WIDE)
+	viewport.add_child(control_root)
+	
+	if not Engine.is_editor_hint():
+		for child in get_children():
+			if child.owner != null:
+				child.get_parent().remove_child(child)
+				control_root.add_child(child)
+
+func _ready() -> void:
 
 	mesh = PlaneMesh.new()
 
@@ -215,6 +240,7 @@ func _ready() -> void:
 	mesh_instance.set_scale(Vector3(1.0, -1.0, 1.0))
 	mesh_instance.set_name("MeshInstance")
 	mesh_instance.set_skeleton_path(NodePath())
+	mesh_instance.set_cast_shadows_setting(GeometryInstance.SHADOW_CASTING_SETTING_OFF)
 	spatial_root.add_child(mesh_instance)
 
 	# Collision
@@ -236,24 +262,6 @@ func _ready() -> void:
 	collision_shape.set_name("CollisionShape")
 	pointer_receiver.add_child(collision_shape)
 
-	viewport = Viewport.new()
-	viewport.size = Vector2(canvas_width, canvas_height)
-	viewport.hdr = false
-	viewport.transparent_bg = true
-	viewport.disable_3d = true
-	viewport.keep_3d_linear = true
-	viewport.usage = Viewport.USAGE_2D_NO_SAMPLING
-	viewport.audio_listener_enable_2d = false
-	viewport.audio_listener_enable_3d = false
-	viewport.render_target_update_mode = Viewport.UPDATE_ALWAYS
-	viewport.set_name("Viewport")
-	spatial_root.add_child(viewport)
-
-	control_root = Control.new()
-	control_root.set_name("ControlRoot")
-	control_root.set_anchors_preset(Control.PRESET_WIDE)
-	viewport.add_child(control_root)
-
 	# Generate the unique material
 	material = SpatialMaterial.new()
 	material.flags_unshaded = true
@@ -271,9 +279,3 @@ func _ready() -> void:
 
 	_update()
 	_set_mesh_material(material)
-
-	if not Engine.is_editor_hint():
-		for child in get_children():
-			if child.owner != null:
-				child.get_parent().remove_child(child)
-				control_root.add_child(child)
